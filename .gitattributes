@@ -1,5 +1,5 @@
 *.uasset filter=lfs diff=lfs merge=lfs -text
-Narwhal.uproject filter=lfs diff=lfs merge=lfs -text
+BaoCorporation.uproject filter=lfs diff=lfs merge=lfs -text
 *.umap filter=lfs diff=lfs merge=lfs -text
 *mp3 filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
