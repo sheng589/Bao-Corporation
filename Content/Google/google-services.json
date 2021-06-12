@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "502069872181",
+    "project_id": "bao-corporation",
+    "storage_bucket": "bao-corporation.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502069872181:android:bdf3a455870f5a5bc9537c",
+        "android_client_info": {
+          "package_name": "com.narwhalcorp.baocorp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502069872181-b4d2d9m8mu6r9v80vd23hsj7kgii5qkq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.narwhalcorp.baocorp",
+            "certificate_hash": "0847ebb78be04f96427f84c34bc7c779f3a13ad3"
+          }
+        },
+        {
+          "client_id": "502069872181-ht4reu13n0r376upfea01la55u0r85u8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL4jYXFi5m60mGjm0eBQnYYgjZiX0hSC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502069872181-ht4reu13n0r376upfea01la55u0r85u8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
