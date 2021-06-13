@@ -1,0 +1,35 @@
+{
+	"FileVersion": 3,
+	"Version": 7,
+	"VersionName": "1.7.5",
+	"FriendlyName": "EasyFirebase",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "feixuwu@outlook.com",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/cad11b30b79e4e929d1adae1b3fa7472",
+	"SupportURL": "",
+	"EngineVersion": "4.25.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "EasyFirebase",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Android"
+			]
+		},
+		{
+			"Name": "EasyFirebaseEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	]
+}

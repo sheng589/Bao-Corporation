@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+EasyAds - unreal engine 4 EasyFirebase plugin
+ Copyright (C) 2019 feiwu <feixuwu@outlook.com> All Rights Reserved.
+-->
+<!--Admob plugin additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- init section is always evaluated once per architecture -->
+	<init>
+		<log text="Admob Android init"/>
+		
+		<!-- get packaging for Admob from ini and reset it if architecture not supported -->
+    <setStringFromProperty result="FaceBookAppId" ini="Engine" section="/Script/EasyFirebaseEditor.FirebaseAuthSetting" property="AndroidFacebookAppId" default=""/>
+    <setStringFromProperty result="PackageName" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="PackageName" default=""/>
+    <setBoolIsEqual result="EnableFacebookAuth" arg1="$S(FaceBookAppId)" arg2=""/>
+    <setBoolNot result="EnableFacebookAuth" source="$B(EnableFacebookAuth)"/>
+    
+    <dumpvars/>
+	</init>
+
+	
+	<!-- optional files or directories to copy to Intermediate/Android/APK -->
+	<gradleCopies>
+      
+		<log text="Copying EasyFirebase files to staging"/>
+		
+	    <copyDir src="$S(PluginDir)/../ThirdParty/Android/Java"
+					dst = "$S(BuildDir)/src" />
+    
+		<copyDir src="$S(PluginDir)/../ThirdParty/Android/Java"
+					dst = "$S(BuildDir)/gradle/app/src/main/java" />
+    
+		<copyDir src="$S(PluginDir)/../ThirdParty/Android/permission_library"
+					dst="$S(BuildDir)/JavaLibs/permission_library" />
+    
+		<copyDir src="$S(PluginDir)/../ThirdParty/Android/permission_library"
+					dst="$S(BuildDir)/gradle/permission_library" />
+
+
+
+    <copyDir src="$S(PluginDir)/../ThirdParty/Android/firebasehelperres"
+					dst="$S(BuildDir)/JavaLibs/firebasehelperres" />
+
+    <copyDir src="$S(PluginDir)/../ThirdParty/Android/firebasehelperres"
+					dst="$S(BuildDir)/gradle/firebasehelperres" />
+
+
+    <copyFile src="$S(ProjectDir)/Build/Android/strings.xml"
+						dst = "$S(BuildDir)/gradle/firebasehelperres/res/values/strings.xml" />
+
+    <copyFile src="$S(ProjectDir)/Build/Android/strings.xml"
+						dst = "$S(BuildDir)/gradle/firebasehelperres/src/main/res/values/strings.xml" />
+
+
+    <copyFile src="$S(ProjectDir)/Build/Android/GooglePlayAppID.xml"
+						dst = "$S(BuildDir)/gradle/app/src/main/res/values/GooglePlayAppID.xml" />
+    
+    
+		<copyFile src="$S(ProjectDir)/Content/google/google-services.json"
+						dst = "$S(BuildDir)/gradle/app/google-services.json" />
+		
+		<copyFile src="$S(PluginDir)/../ThirdParty/firebase_cpp_sdk/Android/firebase_dependencies.gradle"
+              dst="$S(BuildDir)/gradle/app/firebase_dependencies.gradle"/>
+      
+	</gradleCopies>
+
+  
+  
+	
+	<!-- Files to copy before the build so they can be used in the build -->
+	<prebuildCopies>
+	    
+	</prebuildCopies>
+  
+  <gradleProperties> 
+      <insert>
+        android.useAndroidX=true
+        android.enableJetifier=true
+      </insert>
+  </gradleProperties>
+
+  <!-- AAR dependencies -->
+  <AARImports>
+
+    <insertValue value="com.google.android.gms,play-services-auth,17.0.0"/>
+    <insertNewline/>
+    
+    <insertValue value="com.google.android.gms,play-services-games,17.0.0"/>
+    <insertNewline/>
+    
+    <insertValue value="com.google.android.gms,play-services-nearby,17.0.0"/>
+    <insertNewline/>
+    
+    <insertValue value="com.google.android.gms,play-services-plus,17.0.0"/>
+    <insertNewline/>
+
+    <insertValue value="com.google.firebase,firebase-core,17.0.0"/>
+    <insertNewline/>
+
+    <insertValue value="com.google.firebase,firebase-database,19.2.0"/>
+    <insertNewline/>
+
+    <insertValue value="com.google.firebase,firebase-auth,19.2.0"/>
+    <insertNewline/>
+
+    <insertValue value="com.google.android.gms,play-services-auth,17.0.0"/>
+    <insertNewline/>
+
+    <insertValue value="com.google.firebase,firebase-analytics,17.2.0"/>
+    <insertNewline/>
+
+    
+    <insertValue value="com.facebook.android,facebook-login,5.15.3"/>
+    <insertNewline/>
+	
+	<insertValue value="com.android.billingclient,billing,2.1.0"/>
+    <insertNewline/>
+      
+
+  </AARImports>
+  
+  <gameActivityReplacement>
+    <setString result="Output" value="$S(PluginDir)/../ThirdParty/Android/GameActivity.java.template"/>
+  </gameActivityReplacement>
+
+  <buildscriptGradleAdditions>
+    <insert>
+      dependencies {
+      classpath 'com.google.gms:google-services:4.2.0' // google-services plugin
+      }
+    </insert>
+  </buildscriptGradleAdditions>
+
+  <buildGradleAdditions>
+    <insert>
+      apply plugin: 'com.google.gms.google-services'
+      apply from: 'firebase_dependencies.gradle'
+      ext{
+      android{
+        defaultConfig{
+          multiDexEnabled true
+        }
+        }
+      }
+    </insert>
+  </buildGradleAdditions>
+	
+
+	  <!-- optional updates applied to AndroidManifest.xml --> 
+	  <androidManifestUpdates>
+      
+      
+      <!-- facebook -->
+      <if condition="EnableFacebookAuth">
+        <true>
+          <setElement result="FacebookAppId" value="meta-data"/>
+          <addAttribute tag="$FacebookAppId" name="android:name" value="com.facebook.sdk.ApplicationId"/>
+          <addAttribute tag="$FacebookAppId" name="android:value" value="@string/facebook_app_id"/>
+          <addElement tag="application" name="FacebookAppId"/>
+
+          <setElement result="FacebookActivity" value="activity"/>
+          <addAttribute tag="$FacebookActivity" name="android:name" value="com.facebook.FacebookActivity"/>
+          <addAttribute tag="$FacebookActivity" name="android:configChanges" value="keyboard|keyboardHidden|screenLayout|screenSize|orientation"/>
+          <addAttribute tag="$FacebookActivity" name="android:label" value="@string/app_name"/>
+          <addElement tag="application" name="FacebookActivity"/>
+
+
+          <setElement result="CustomTabActivity" value="activity"/>
+          <addAttribute tag="$CustomTabActivity" name="android:name" value="com.facebook.CustomTabActivity"/>
+          <addAttribute tag="$CustomTabActivity" name="android:exported" value="true"/>
+          
+          <addElement tag="$CustomTabActivity" name="IntentFilterElement"/>
+          <addElement tag="application" name="CustomTabActivity"/>
+
+        </true>
+      </if>
+
+      <setElement result="IntentFilterElement" value="intent-filter"/>
+
+      <addElements tag="$IntentFilterElement">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="@string/fb_login_protocol_scheme" />
+      </addElements>
+      
+
+      <!-- Add permissions -->
+      <addPermission android:name="android.permission.INTERNET" />
+      <addPermission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+      <addPermission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	  </androidManifestUpdates>
+
+	<!-- optional additions to proguard -->
+  <proguardAdditions>
+    <insert>
+      -keep,includedescriptorclasses public class com.google.android.gms.common.GoogleApiAvailability { *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.common.GoogleApiAvailability{ *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.crash.internal.api.CrashApiImpl { *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.tasks.OnCanceledListener { *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.tasks.OnFailureListener { *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.tasks.OnSuccessListener { *; }
+      -keep,includedescriptorclasses public class com.google.android.gms.tasks.Task { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseApp{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseOptions{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseOptions$Builder{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.platforminfo.GlobalLibraryVersionRegistrar{ *; }
+      -keep,includedescriptorclasses public class dalvik.system.DexClassLoader{ *; }
+
+      -keepattributes *Annotation*
+      -keepattributes Signature
+      -keepclasseswithmembers class * { @retrofit.http.* &lt;methods&gt;; }
+
+      -keep class retrofit.** { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.app.internal.cpp.Log { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.AdditionalUserInfo{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.AuthCredential{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.AuthResult{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.EmailAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FacebookAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuth { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuth{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthActionCodeException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuth$AuthStateListener { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthEmailException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuth$IdTokenListener { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthInvalidCredentialsException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthInvalidUserException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthUserCollisionException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthWeakPasswordException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseAuthWebException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseUser{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.FirebaseUserMetadata{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.GetTokenResult{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.GithubAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.GoogleAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.OAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.OAuthProvider$Builder{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.OAuthProvider$CredentialBuilder{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthCredential { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthCredential{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthProvider { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthProvider$ForceResendingToken { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PhoneAuthProvider$OnVerificationStateChangedCallbacks { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.PlayGamesAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.SignInMethodQueryResult{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.TwitterAuthProvider{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.UserInfo{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.auth.UserProfileChangeRequest$Builder{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseApiNotAvailableException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseException { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseNetworkException{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.FirebaseTooManyRequestsException{ *; }
+      -keep,includedescriptorclasses public class java.util.concurrent.TimeUnit{ *; }
+
+      -keep,includedescriptorclasses public class com.google.firebase.database.ChildEventListener { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.DatabaseError { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.DatabaseError{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.DatabaseReference{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.DataSnapshot { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.DataSnapshot{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.FirebaseDatabase{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.Logger$Level{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.MutableData { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.MutableData{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.OnDisconnect{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.Query{ *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.Transaction { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.Transaction$Handler { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.Transaction$Result { *; }
+      -keep,includedescriptorclasses public class com.google.firebase.database.ValueEventListener { *; }
+
+      -keep,includedescriptorclasses public class com.google.firebase.analytics.FirebaseAnalytics{ *; }
+      
+      
+    </insert>
+  </proguardAdditions>
+
+
+  <!-- optional additions to the GameActivity imports in GameActivity.java -->
+  <gameActivityImportAdditions>
+    <if condition="EnableFacebookAuth">
+      <true>
+        <insert>
+          import com.firebasehelper.FirebaseFacebookLogin;
+        </insert>
+      </true>
+    </if>
+
+    <!--
+      <insert>
+        import com.firebasehelper.FirebaseGoogleLogin;
+      </insert>
+      -->
+    <insertValue value="import $S(PackageName).R;"/>
+    <insertNewline/>
+
+    <insert>
+      import com.google.android.gms.auth.api.signin.GoogleSignIn;
+      import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+      import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+      import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+      import com.google.android.gms.common.api.ApiException;
+      import com.google.android.gms.tasks.Task;
+
+
+
+    </insert>
+  </gameActivityImportAdditions>
+
+  <gameActivityPostImportAdditions>
+    <insert>
+      class FirebaseGoogleLogin {
+      private static final String TAG = "FirebaseGoogle";
+      public static final int RC_SIGN_IN = 10000;
+      public static final int RC_GAME_IN = 10001;
+      private Activity mActiviry;
+
+      public FirebaseGoogleLogin(Activity activity){
+      mActiviry = activity;
+      }
+
+      public void doGoogleSignIn(){
+
+      // request login
+      GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+      .requestIdToken(mActiviry.getString(R.string.default_web_client_id))
+      .requestEmail()
+      .build();
+
+      GoogleSignInClient googleClient = GoogleSignIn.getClient(mActiviry, gso);
+      mActiviry.startActivityForResult(googleClient.getSignInIntent(), RC_SIGN_IN);
+      }
+
+      public void doGoogleGameSignIn(){
+      GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+      .requestServerAuthCode(mActiviry.getString(R.string.default_web_client_id))
+      .build();
+
+      GoogleSignInClient googleClient = GoogleSignIn.getClient(mActiviry, gso);
+      mActiviry.startActivityForResult(googleClient.getSignInIntent(), RC_GAME_IN);
+      }
+
+      public void onActivityResult(int requestCode, int resultCode, Intent data){
+      if(requestCode == RC_SIGN_IN){
+        Task&lt;GoogleSignInAccount&gt; task = GoogleSignIn.getSignedInAccountFromIntent(data);
+        try {
+        GoogleSignInAccount account = task.getResult(ApiException.class);
+        nativeGoogleSignInResult(true, account.getIdToken() );
+        }catch (ApiException e){
+        nativeGoogleSignInResult(false, "");
+        Log.d(TAG, "GoogleSignIn Fail:"+e.getStatusCode() );
+        }
+      }else if(requestCode == RC_GAME_IN){
+          Task&lt;GoogleSignInAccount&gt; task = GoogleSignIn.getSignedInAccountFromIntent(data);
+      try {
+      GoogleSignInAccount account = task.getResult(ApiException.class);
+      String strServerAuthCode = account.getServerAuthCode();
+      nativeGoogleGameSignInResult(true, strServerAuthCode);
+      }catch (ApiException e){
+      nativeGoogleGameSignInResult(false, "");
+      Log.d(TAG, "GoogleSignIn Fail:"+e.getStatusCode() );
+      }
+      }
+      }
+      public native void nativeGoogleGameSignInResult(boolean success, String serverAuthCode);
+      public native void nativeGoogleSignInResult(boolean success, String idToken);
+      }
+    </insert>
+  </gameActivityPostImportAdditions>
+
+	<!-- optional additions to the GameActivity class in GameActivity.java -->
+	<gameActivityClassAdditions>
+
+    <if condition="EnableFacebookAuth">
+      <true>
+        <insert>
+          private FirebaseFacebookLogin mFirebaseFacebookLogin;
+          public void AndroidThunkJava_RequestFacebookSignIn(){
+          mFirebaseFacebookLogin.doFacebookSignIn();
+          }
+        </insert>
+      </true>
+    </if>
+
+    <insert>
+      private FirebaseGoogleLogin mFirebaseGoogleLogin;
+
+
+      public void AndroidThunkJava_RequestGoogleSignIn(){
+      mFirebaseGoogleLogin.doGoogleSignIn();
+      }
+
+      public void AndroidThunkJava_RequestGoogleServerAuthCode() {
+      mFirebaseGoogleLogin.doGoogleGameSignIn();
+      }
+
+
+
+    </insert>
+  </gameActivityClassAdditions>
+	
+	<!-- optional additions to GameActivity onCreate metadata reading in GameActivity.java -->
+	<gameActivityReadMetadataAdditions>
+		
+	</gameActivityReadMetadataAdditions>
+	
+	<!-- optional additions to GameActivity onCreate in GameActivity.java -->
+	<gameActivityOnCreateAdditions>
+
+    <if condition="EnableFacebookAuth">
+      <true>
+        <insert>
+          mFirebaseFacebookLogin = new FirebaseFacebookLogin(this);
+        </insert>
+      </true>
+    </if>
+
+    <insert>
+      mFirebaseGoogleLogin = new FirebaseGoogleLogin(this);
+      
+    </insert>
+		
+	</gameActivityOnCreateAdditions>
+
+	<!-- optional additions to GameActivity onDestroy in GameActivity.java-->
+	<gameActivityOnDestroyAdditions>
+		
+		
+	</gameActivityOnDestroyAdditions>
+	
+	<!-- optional additions to GameActivity onStart in GameActivity.java -->
+	<gameActivityOnStartAdditions>
+		
+	
+	</gameActivityOnStartAdditions>
+
+	<!-- optional additions to GameActivity onStop in GameActivity.java -->
+	<gameActivityOnStopAdditions>
+		
+
+	</gameActivityOnStopAdditions>
+
+	<!-- optional additions to GameActivity onPause in GameActivity.java -->
+	<gameActivityOnPauseAdditions>
+		
+	
+			
+	</gameActivityOnPauseAdditions>
+
+	<!-- optional additions to GameActivity onResume in GameActivity.java -->
+	<gameActivityOnResumeAdditions>
+		
+
+	</gameActivityOnResumeAdditions>
+
+	<!-- optional additions to GameActivity onActivityResult in GameActivity.java -->
+	<gameActivityOnActivityResultAdditions>
+    <if condition="EnableFacebookAuth">
+      <true>
+        <insert>
+          mFirebaseFacebookLogin.onActivityResult(requestCode, resultCode, data);
+        </insert>
+      </true>
+    </if>
+    
+    <insert>
+      mFirebaseGoogleLogin.onActivityResult(requestCode, resultCode, data);
+    </insert>
+	</gameActivityOnActivityResultAdditions>
+
+	<!-- optional libraries to load in GameActivity.java before libUE4.so -->
+	<soLoadLibrary>
+	</soLoadLibrary>
+</root>
